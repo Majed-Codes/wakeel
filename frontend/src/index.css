@@ -1,0 +1,175 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════════════════════════════
+   LIGHT THEME  (default — :root)
+   ═══════════════════════════════════════════════════════════════ */
+:root {
+  color-scheme: light;
+
+  /* Backgrounds */
+  --color-bg:           #F5F5F7;
+  --color-bg-subtle:    #FFFFFF;
+  --color-card:         rgba(255, 255, 255, 0.85);
+
+  /* Glass system */
+  --color-glass:        rgba(255, 255, 255, 0.72);
+  --color-glass-border: rgba(0, 0, 0, 0.08);
+  --color-glass-hover:  rgba(255, 255, 255, 0.92);
+  --color-glass-active: rgba(0, 0, 0, 0.06);
+
+  /* Text */
+  --color-heading:      #1D1D1F;
+  --color-body:         #6E6E73;
+  --color-muted:        #8E8E93;
+
+  /* Background images */
+  --bg-card-gradient:   linear-gradient(180deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.60) 100%);
+  --bg-bento-gradient:  linear-gradient(145deg, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0.45) 100%);
+  --bg-aurora:          radial-gradient(circle at 50% 0%, rgba(47,128,237,0.07) 0%, transparent 55%);
+
+  /* Shadow */
+  --shadow-glass:       0 8px 32px 0 rgba(0, 0, 0, 0.10);
+
+  /* Body */
+  --body-bg-color:      #F2F2F7;
+  --body-bg-image:      linear-gradient(135deg, #EEF2FF 0%, #F0FDF4 55%, #FFF7ED 100%);
+
+  /* Inputs */
+  --input-bg:           rgba(0, 0, 0, 0.04);
+  --input-color:        #1D1D1F;
+  --input-border:       rgba(0, 0, 0, 0.12);
+
+  /* Scrollbar */
+  --scrollbar-thumb:       rgba(0, 0, 0, 0.15);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.25);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   DARK THEME  (.dark on <html>)
+   ═══════════════════════════════════════════════════════════════ */
+.dark {
+  color-scheme: dark;
+
+  /* Backgrounds */
+  --color-bg:           #000000;
+  --color-bg-subtle:    #121214;
+  --color-card:         rgba(255, 255, 255, 0.02);
+
+  /* Glass system */
+  --color-glass:        rgba(255, 255, 255, 0.03);
+  --color-glass-border: rgba(255, 255, 255, 0.08);
+  --color-glass-hover:  rgba(255, 255, 255, 0.08);
+  --color-glass-active: rgba(255, 255, 255, 0.12);
+
+  /* Text */
+  --color-heading:      #FFFFFF;
+  --color-body:         #A1A1AA;
+  --color-muted:        #71717A;
+
+  /* Background images */
+  --bg-card-gradient:   linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+  --bg-bento-gradient:  linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+  --bg-aurora:          radial-gradient(circle at 50% 0%, rgba(47,128,237,0.20) 0%, transparent 50%),
+                        radial-gradient(circle at 0%  0%, rgba(168,85,247,0.08) 0%, transparent 40%);
+
+  /* Shadow */
+  --shadow-glass:       0 8px 32px 0 rgba(0, 0, 0, 0.36);
+
+  /* Body */
+  --body-bg-color:      #000000;
+  --body-bg-image:
+    radial-gradient(circle at 50%  0%, rgba(47, 128, 237, 0.15), transparent 60%),
+    radial-gradient(circle at 80% 10%, rgba(168, 85, 247, 0.08), transparent 50%),
+    radial-gradient(circle at 20% 10%, rgba(59, 130, 246, 0.08), transparent 50%);
+
+  /* Inputs */
+  --input-bg:           rgba(255, 255, 255, 0.05);
+  --input-color:        #FFFFFF;
+  --input-border:       rgba(255, 255, 255, 0.10);
+
+  /* Scrollbar */
+  --scrollbar-thumb:       rgba(255, 255, 255, 0.10);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.20);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GLOBAL RESET
+   ═══════════════════════════════════════════════════════════════ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  direction: rtl;
+}
+
+body {
+  font-family: 'Tajawal', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--body-bg-color);
+  background-image: var(--body-bg-image);
+  background-attachment: fixed;
+  color: var(--color-heading);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SCROLLBAR — Minimal
+   ═══════════════════════════════════════════════════════════════ */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 99px;
+  transition: background 0.2s;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
+
+/* ═══════════════════════════════════════════════════════════════
+   GLASS UTILITIES
+   ═══════════════════════════════════════════════════════════════ */
+.glass-panel {
+  @apply bg-glass backdrop-blur-xl border border-glass-border shadow-glass;
+}
+
+.glass-card {
+  @apply bg-card-gradient backdrop-blur-md border border-glass-border shadow-inner-light;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TEXT SELECTION
+   ═══════════════════════════════════════════════════════════════ */
+::selection {
+  background: rgba(47, 128, 237, 0.3);
+  color: white;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   INPUT RESET — theme-aware
+   ═══════════════════════════════════════════════════════════════ */
+input,
+textarea,
+select {
+  background-color: var(--input-bg);
+  color: var(--input-color);
+  border-color: var(--input-border);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #2F80ED;
+  background-color: var(--input-bg);
+  outline: none;
+}

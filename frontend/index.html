@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ar" dir="rtl" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="وكيل — المساعد المالي الذكي للمنشآت الصغيرة والمتوسطة في السعودية" />
+    <title>وكيل — Wakeel AI</title>
+    <!-- Flash prevention: apply saved theme BEFORE React mounts to avoid flicker -->
+    <script>
+      (function() {
+        var theme = localStorage.getItem('wakeel_theme') || 'dark';
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,35 @@
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+sqlalchemy==2.0.25
+alembic==1.13.1
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+python-dotenv==1.0.0
+openai==1.12.0
+anthropic>=0.39.0
+google-cloud-speech>=2.27.0
+langchain==0.1.6
+langchain-community==0.0.20
+chromadb==0.4.22
+sentence-transformers==2.3.1
+pydantic>=2.9.0
+pydantic-settings>=2.4.0
+httpx==0.26.0
+# ── Phase 1: Forecasting + CSV + OCR ──
+prophet>=1.1.5
+openpyxl>=3.1.2
+pandas>=2.2.0
+Pillow>=10.2.0
+python-dateutil>=2.8.2
+# ── Phase 2: Reports + ML + Alerts ──
+reportlab>=4.1.0
+scikit-learn>=1.4.0
+# ── Phase 3: E-Invoice ──
+qrcode>=7.4.2
+# ── Phase 4: WhatsApp ──
+twilio>=9.0.0
+# ── Testing ──
+pytest==7.4.4
+pytest-asyncio==0.23.4
+aiosqlite==0.19.0
