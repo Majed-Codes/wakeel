@@ -2,15 +2,10 @@ import { useState, useEffect } from 'react'
 import {
     TrendingUp,
     TrendingDown,
-    Activity,
-    ArrowUpRight,
-    CreditCard,
-    DollarSign,
-    MoreHorizontal,
     AlertTriangle,
     Calendar,
     ChevronRight,
-    Sparkles
+    Sparkles,
 } from 'lucide-react'
 import {
     AreaChart,
@@ -23,9 +18,8 @@ import {
 } from 'recharts'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { dashboardAPI, forecastAPI, anomaliesAPI, alertsAPI, advisorAPI } from '../api'
+import { forecastAPI, anomaliesAPI, alertsAPI, advisorAPI } from '../api'
 
-// Mock Data incase API fails
 const chartData = [
     { name: 'Jan', income: 45000, expenses: 32000 },
     { name: 'Feb', income: 52000, expenses: 28000 },
@@ -38,7 +32,7 @@ const chartData = [
 const categoryData = [
     { name: 'تشغيلية', value: 45, color: '#3B82F6' },
     { name: 'رأسمالية', value: 20, color: '#8B5CF6' },
-    { name: 'إيرادات', value: 30, color: '#10B981' },
+    { name: 'إيرادات', value: 30, color: '#22C55E' },
     { name: 'أخرى', value: 5, color: '#F59E0B' },
 ]
 
@@ -56,15 +50,23 @@ interface AnomalyItem {
     description: string
 }
 
+const item = {
+    hidden: { opacity: 0, y: 16 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } },
+}
+
+const container = {
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { staggerChildren: 0.07 } },
+}
+
 export default function Dashboard() {
-    const [loading, setLoading] = useState(true)
     const [forecastSummary, setForecastSummary] = useState<ForecastSummary | null>(null)
     const [anomalies, setAnomalies] = useState<AnomalyItem[]>([])
     const [unreadAlerts, setUnreadAlerts] = useState(0)
     const [advisorScore, setAdvisorScore] = useState<{ health_score: number; action_items: string[] } | null>(null)
 
     useEffect(() => {
-        // Load dashboard data
         Promise.all([
             forecastAPI.get(30).catch(() => null),
             anomaliesAPI.list().catch(() => null),
@@ -75,154 +77,132 @@ export default function Dashboard() {
             if (anomalyRes?.data) setAnomalies(anomalyRes.data.slice(0, 3))
             if (alertRes?.data) setUnreadAlerts(alertRes.data.unread || 0)
             if (advisorRes?.data) setAdvisorScore({ health_score: advisorRes.data.health_score, action_items: advisorRes.data.action_items || [] })
-        }).finally(() => {
-            setTimeout(() => setLoading(false), 400)
         })
     }, [])
 
-    const container = {
-        hidden: { opacity: 0 },
-        show: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.1
-            }
-        }
-    }
-
-    const item = {
-        hidden: { opacity: 0, y: 20 },
-        show: { opacity: 1, y: 0 }
-    }
+    const hasExtraCards = forecastSummary !== null || anomalies.length > 0 || unreadAlerts > 0 || advisorScore !== null
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-6">
+
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-end justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-heading">لوحة التحكم</h1>
-                    <p className="text-body mt-1">نظرة عامة على أدائك المالي</p>
+                    <p className="text-xs text-muted uppercase tracking-widest mb-1" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                        Financial Overview
+                    </p>
+                    <h1 className="text-2xl font-bold text-heading">لوحة التحكم</h1>
                 </div>
-                <div className="flex gap-2">
-                    <button className="px-4 py-2 bg-glass border border-glass-border rounded-xl text-sm hover:bg-glass-hover transition-colors">تصدير</button>
-                    <button className="px-4 py-2 bg-accent hover:bg-accent-hover text-white rounded-xl text-sm transition-colors shadow-glow">تقرير جديد</button>
-                </div>
+                <p className="text-xs text-muted" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                    {new Date().toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' })}
+                </p>
             </div>
 
-            {/* Bento Grid */}
-            <motion.div
-                variants={container}
-                initial="hidden"
-                animate="show"
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
-            >
-                {/* Stat 1: Revenue (Large - 2 cols) */}
-                <motion.div variants={item} className="col-span-1 md:col-span-2 glass-panel rounded-3xl p-6 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-accent/20 blur-[50px] rounded-full group-hover:bg-accent/30 transition-colors" />
-                    <div className="relative z-10 flex justify-between items-start">
+            <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+                {/* Revenue — 2 cols */}
+                <motion.div variants={item} className="col-span-1 md:col-span-2 rounded-2xl p-6 border border-white/[0.06] bg-white/[0.02]" style={{ borderTop: '1px solid #22C55E33' }}>
+                    <p className="text-xs text-muted mb-3">إجمالي الإيرادات</p>
+                    <div className="flex items-end justify-between">
                         <div>
-                            <p className="text-sm text-muted font-medium mb-1">إجمالي الإيرادات</p>
-                            <h3 className="text-4xl font-bold text-heading tabular-nums">142,500 <span className="text-lg text-muted font-normal">ر.س</span></h3>
-                            <div className="flex items-center gap-2 mt-4 text-emerald-400 text-sm font-medium bg-emerald-400/10 px-2 py-1 rounded-lg w-fit">
-                                <TrendingUp size={16} />
-                                <span>+12.5%</span>
-                                <span className="text-muted font-normal text-xs">مقارنة بالشهر الماضي</span>
+                            <h3 className="text-5xl font-bold text-heading tabular-nums leading-none" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                                142,500
+                            </h3>
+                            <p className="text-sm text-muted mt-2">ريال سعودي</p>
+                        </div>
+                        <div className="text-left">
+                            <div className="flex items-center gap-1 text-emerald-400 text-sm font-medium">
+                                <TrendingUp size={14} />
+                                <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>+12.5%</span>
                             </div>
-                        </div>
-                        <div className="w-12 h-12 rounded-full bg-glass flex items-center justify-center border border-glass-border">
-                            <DollarSign className="text-accent" />
+                            <p className="text-xs text-muted mt-1">vs الشهر الماضي</p>
                         </div>
                     </div>
                 </motion.div>
 
-                {/* Stat 2: Expenses */}
-                <motion.div variants={item} className="glass-panel rounded-3xl p-6 relative overflow-hidden">
-                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-purple-500/20 blur-[40px] rounded-full" />
-                    <div className="flex justify-between items-start mb-4">
-                        <div className="w-10 h-10 rounded-full bg-glass flex items-center justify-center border border-glass-border">
-                            <Activity className="text-purple-400" size={20} />
-                        </div>
-                        <MoreHorizontal className="text-muted cursor-pointer hover:text-white" size={20} />
-                    </div>
-                    <p className="text-sm text-muted font-medium">المصاريف</p>
-                    <h3 className="text-2xl font-bold text-heading mt-1 tabular-nums">45,200</h3>
-                    <p className="text-xs text-rose-400 mt-2 flex items-center gap-1">
+                {/* Expenses */}
+                <motion.div variants={item} className="rounded-2xl p-6 border border-white/[0.06] bg-white/[0.02]" style={{ borderTop: '1px solid #EF444433' }}>
+                    <p className="text-xs text-muted mb-3">المصاريف</p>
+                    <h3 className="text-3xl font-bold text-heading tabular-nums leading-none" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                        45,200
+                    </h3>
+                    <div className="flex items-center gap-1 text-rose-400 text-xs mt-3">
                         <TrendingDown size={12} />
-                        +5.2% ارتفاع
-                    </p>
-                </motion.div>
-
-                {/* Stat 3: Net Profit */}
-                <motion.div variants={item} className="glass-panel rounded-3xl p-6 relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-24 h-24 bg-emerald-500/20 blur-[40px] rounded-full" />
-                    <div className="flex justify-between items-start mb-4">
-                        <div className="w-10 h-10 rounded-full bg-glass flex items-center justify-center border border-glass-border">
-                            <CreditCard className="text-emerald-400" size={20} />
-                        </div>
-                        <MoreHorizontal className="text-muted cursor-pointer hover:text-white" size={20} />
+                        <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>+5.2%</span>
+                        <span className="text-muted">ارتفاع</span>
                     </div>
-                    <p className="text-sm text-muted font-medium">صافي الربح</p>
-                    <h3 className="text-2xl font-bold text-heading mt-1 tabular-nums">97,300</h3>
-                    <p className="text-xs text-emerald-400 mt-2 flex items-center gap-1">
-                        <ArrowUpRight size={12} />
-                        +18.2% نمو
-                    </p>
                 </motion.div>
 
-                {/* Main Curve Chart (3 cols) */}
-                <motion.div variants={item} className="col-span-1 md:col-span-2 lg:col-span-3 glass-panel rounded-3xl p-6">
+                {/* Net Profit */}
+                <motion.div variants={item} className="rounded-2xl p-6 border border-white/[0.06] bg-white/[0.02]" style={{ borderTop: '1px solid #2F80ED33' }}>
+                    <p className="text-xs text-muted mb-3">صافي الربح</p>
+                    <h3 className="text-3xl font-bold text-heading tabular-nums leading-none" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                        97,300
+                    </h3>
+                    <div className="flex items-center gap-1 text-emerald-400 text-xs mt-3">
+                        <TrendingUp size={12} />
+                        <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>+18.2%</span>
+                        <span className="text-muted">نمو</span>
+                    </div>
+                </motion.div>
+
+                {/* Chart — 3 cols */}
+                <motion.div variants={item} className="col-span-1 md:col-span-2 lg:col-span-3 rounded-2xl p-6 border border-white/[0.06] bg-white/[0.02]">
                     <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-lg font-bold text-heading">التحليل المالي</h3>
+                        <h3 className="text-sm font-semibold text-heading">التحليل المالي</h3>
                         <div className="flex items-center gap-4 text-xs text-muted">
-                            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#2F80ED] inline-block" />الإيرادات</span>
-                            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#8B5CF6] inline-block" />المصاريف</span>
+                            <span className="flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-[#2F80ED] inline-block" />
+                                الإيرادات
+                            </span>
+                            <span className="flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-[#8B5CF6] inline-block" />
+                                المصاريف
+                            </span>
                         </div>
                     </div>
-                    <div className="h-[280px] w-full" dir="ltr">
+                    <div className="h-[260px] w-full" dir="ltr">
                         <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={chartData} margin={{ top: 5, right: 10, left: 55, bottom: 5 }}>
+                            <AreaChart data={chartData} margin={{ top: 4, right: 4, left: 48, bottom: 4 }}>
                                 <defs>
-                                    <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#2F80ED" stopOpacity={0.3} />
+                                    <linearGradient id="gIncome" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#2F80ED" stopOpacity={0.15} />
                                         <stop offset="95%" stopColor="#2F80ED" stopOpacity={0} />
                                     </linearGradient>
-                                    <linearGradient id="colorExp" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3} />
+                                    <linearGradient id="gExp" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.15} />
                                         <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
-                                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                                <XAxis dataKey="name" stroke="#52525B" tick={{ fill: '#71717A', fontSize: 12 }} axisLine={false} tickLine={false} dy={10} />
-                                <YAxis stroke="#52525B" tick={{ fill: '#71717A', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} />
+                                <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.04)" vertical={false} />
+                                <XAxis dataKey="name" stroke="transparent" tick={{ fill: '#52525B', fontSize: 11, fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} dy={8} />
+                                <YAxis stroke="transparent" tick={{ fill: '#52525B', fontSize: 11, fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
                                 <Tooltip
-                                    contentStyle={{ backgroundColor: 'rgba(0,0,0,0.85)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', backdropFilter: 'blur(12px)' }}
-                                    itemStyle={{ color: '#fff' }}
+                                    contentStyle={{ backgroundColor: '#0d0d0f', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', fontSize: '12px', fontFamily: 'JetBrains Mono' }}
+                                    itemStyle={{ color: '#a1a1aa' }}
                                     formatter={(value: number) => [`${value.toLocaleString()} ر.س`]}
                                 />
-                                <Area type="monotone" dataKey="income" name="الإيرادات" stroke="#2F80ED" strokeWidth={3} fillOpacity={1} fill="url(#colorIncome)" />
-                                <Area type="monotone" dataKey="expenses" name="المصاريف" stroke="#8B5CF6" strokeWidth={3} fillOpacity={1} fill="url(#colorExp)" />
+                                <Area type="monotone" dataKey="income" name="الإيرادات" stroke="#2F80ED" strokeWidth={2} fillOpacity={1} fill="url(#gIncome)" />
+                                <Area type="monotone" dataKey="expenses" name="المصاريف" stroke="#8B5CF6" strokeWidth={2} fillOpacity={1} fill="url(#gExp)" />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
                 </motion.div>
 
-                {/* Distribution (1 col) — same row as chart, sits on the left */}
-                <motion.div variants={item} className="glass-panel rounded-3xl p-6">
-                    <h3 className="text-lg font-bold text-heading mb-6">التوزيع</h3>
-                    <div className="space-y-5">
+                {/* Distribution — 1 col */}
+                <motion.div variants={item} className="rounded-2xl p-6 border border-white/[0.06] bg-white/[0.02]">
+                    <h3 className="text-sm font-semibold text-heading mb-5">التوزيع</h3>
+                    <div className="space-y-4">
                         {categoryData.map((cat) => (
-                            <div key={cat.name} className="space-y-2">
-                                <div className="flex items-center justify-between text-xs">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: cat.color }} />
-                                        <span className="text-muted font-medium">{cat.name}</span>
-                                    </div>
-                                    <span className="text-heading font-semibold tabular-nums">{cat.value}%</span>
+                            <div key={cat.name}>
+                                <div className="flex items-center justify-between mb-1.5">
+                                    <span className="text-xs text-muted">{cat.name}</span>
+                                    <span className="text-xs font-medium text-heading tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{cat.value}%</span>
                                 </div>
-                                <div className="h-2 w-full bg-glass rounded-full overflow-hidden">
+                                <div className="h-1 w-full rounded-full" style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}>
                                     <div
                                         className="h-full rounded-full"
-                                        style={{ width: `${cat.value}%`, background: cat.color, transition: 'width 0.7s ease' }}
+                                        style={{ width: `${cat.value}%`, backgroundColor: cat.color, transition: 'width 0.8s cubic-bezier(0.22,1,0.36,1)' }}
                                     />
                                 </div>
                             </div>
@@ -230,113 +210,103 @@ export default function Dashboard() {
                     </div>
                 </motion.div>
 
-                {/* Forecast Mini-Card */}
-                {forecastSummary && (
-                    <motion.div variants={item} className="glass-panel rounded-3xl p-6 border border-accent/20">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-sm font-bold text-heading flex items-center gap-2">
-                                <Calendar className="w-4 h-4 text-accent" />
-                                التنبؤ - 30 يوم
-                            </h3>
-                            <Link to="/forecast" className="text-xs text-accent flex items-center gap-1 hover:underline">
-                                التفاصيل <ChevronRight className="w-3 h-3" />
-                            </Link>
-                        </div>
-                        <div className="space-y-2">
-                            <div className="flex justify-between text-xs">
-                                <span className="text-muted">متوسط إيراد يومي</span>
-                                <span className="text-success font-medium">{forecastSummary.avg_daily_revenue.toLocaleString('ar-SA')} ر.س</span>
-                            </div>
-                            <div className="flex justify-between text-xs">
-                                <span className="text-muted">متوسط مصروف يومي</span>
-                                <span className="text-error font-medium">{forecastSummary.avg_daily_expense.toLocaleString('ar-SA')} ر.س</span>
-                            </div>
-                            <div className="flex justify-between text-xs border-t border-glass-border pt-2 mt-2">
-                                <span className="text-muted">الصافي المتوقع</span>
-                                <span className={`font-bold ${forecastSummary.predicted_net_30d >= 0 ? 'text-success' : 'text-error'}`}>
-                                    {forecastSummary.predicted_net_30d.toLocaleString('ar-SA')} ر.س
-                                </span>
-                            </div>
-                        </div>
-                        <div className={`mt-3 text-xs px-2 py-1 rounded-lg w-fit ${
-                            forecastSummary.trend === 'growing' ? 'bg-success/10 text-success' :
-                            forecastSummary.trend === 'declining' ? 'bg-error/10 text-error' :
-                            'bg-warning/10 text-warning'
-                        }`}>
-                            {forecastSummary.trend === 'growing' ? '📈 نمو' : forecastSummary.trend === 'declining' ? '📉 انخفاض' : '➡️ مستقر'}
-                        </div>
-                    </motion.div>
-                )}
-
-                {/* Anomaly Indicators */}
-                {anomalies.length > 0 && (
-                    <motion.div variants={item} className="glass-panel rounded-3xl p-6 border border-warning/20">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-sm font-bold text-heading flex items-center gap-2">
-                                <AlertTriangle className="w-4 h-4 text-warning" />
-                                شذوذات مكتشفة
-                            </h3>
-                            <span className="text-xs bg-warning/20 text-warning px-2 py-0.5 rounded-full">{anomalies.length}</span>
-                        </div>
-                        <div className="space-y-2">
-                            {anomalies.map((a, i) => (
-                                <div key={i} className={`text-xs p-2 rounded-lg border ${
-                                    a.severity === 'high' ? 'border-error/30 bg-error/5 text-error' : 'border-warning/30 bg-warning/5 text-warning'
-                                }`}>
-                                    <p className="font-medium">{a.title}</p>
+                {/* Extra API-driven cards */}
+                {hasExtraCards && (
+                    <>
+                        {forecastSummary && (
+                            <motion.div variants={item} className="rounded-2xl p-5 border border-accent/10 bg-white/[0.02]">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-2 text-xs text-muted">
+                                        <Calendar className="w-3.5 h-3.5 text-accent" />
+                                        التنبؤ — 30 يوم
+                                    </div>
+                                    <Link to="/forecast" className="text-xs text-accent flex items-center gap-0.5 hover:opacity-70 transition-opacity">
+                                        عرض <ChevronRight className="w-3 h-3" />
+                                    </Link>
                                 </div>
-                            ))}
-                        </div>
-                    </motion.div>
-                )}
+                                <div className="space-y-3">
+                                    {[
+                                        { label: 'إيراد يومي', val: forecastSummary.avg_daily_revenue, color: '#22C55E' },
+                                        { label: 'مصروف يومي', val: forecastSummary.avg_daily_expense, color: '#EF4444' },
+                                        { label: 'الصافي المتوقع', val: forecastSummary.predicted_net_30d, color: forecastSummary.predicted_net_30d >= 0 ? '#22C55E' : '#EF4444' },
+                                    ].map(row => (
+                                        <div key={row.label} className="flex justify-between items-center">
+                                            <span className="text-xs text-muted">{row.label}</span>
+                                            <span className="text-xs font-medium tabular-nums" style={{ color: row.color, fontFamily: "'JetBrains Mono', monospace" }}>
+                                                {row.val.toLocaleString('ar-SA')} ر.س
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="mt-3 pt-3 border-t border-white/[0.05]">
+                                    <span className="text-xs text-muted">
+                                        {forecastSummary.trend === 'growing' ? 'نمو' : forecastSummary.trend === 'declining' ? 'انخفاض' : 'مستقر'}
+                                        {' · '}مخاطر {forecastSummary.risk_level === 'high' ? 'مرتفعة' : forecastSummary.risk_level === 'medium' ? 'متوسطة' : 'منخفضة'}
+                                    </span>
+                                </div>
+                            </motion.div>
+                        )}
 
-                {/* Unread Alerts Banner */}
-                {unreadAlerts > 0 && (
-                    <motion.div variants={item} className="col-span-1 md:col-span-2 lg:col-span-4 glass-panel rounded-2xl p-4 border border-accent/20 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
-                                <span className="text-accent font-bold text-sm">{unreadAlerts}</span>
-                            </div>
-                            <div>
-                                <p className="text-sm font-medium text-heading">لديك {unreadAlerts} تنبيه جديد</p>
-                                <p className="text-xs text-muted">تحقق من التنبيهات للاطلاع على التحديثات المالية</p>
-                            </div>
-                        </div>
-                        <Link to="/alerts" className="text-xs text-accent border border-accent/30 px-3 py-1.5 rounded-lg hover:bg-accent/10 transition-colors">
-                            عرض التنبيهات
-                        </Link>
-                    </motion.div>
-                )}
+                        {anomalies.length > 0 && (
+                            <motion.div variants={item} className="rounded-2xl p-5 border border-amber-500/10 bg-white/[0.02]">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-2 text-xs text-muted">
+                                        <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                                        شذوذات مكتشفة
+                                    </div>
+                                    <span className="text-xs tabular-nums text-amber-400" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{anomalies.length}</span>
+                                </div>
+                                <div className="space-y-2">
+                                    {anomalies.map((a, i) => (
+                                        <p key={i} className="text-xs text-muted leading-relaxed border-r-2 pr-2" style={{ borderColor: a.severity === 'high' ? '#EF4444' : '#F59E0B' }}>
+                                            {a.title}
+                                        </p>
+                                    ))}
+                                </div>
+                            </motion.div>
+                        )}
 
-                {/* AI Advisor Mini-Card */}
-                {advisorScore && (
-                    <motion.div variants={item} className="glass-panel rounded-3xl p-6 border border-accent/20">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-sm font-bold text-heading flex items-center gap-2">
-                                <Sparkles className="w-4 h-4 text-accent" />
-                                الصحة المالية
-                            </h3>
-                            <Link to="/advisor" className="text-xs text-accent flex items-center gap-1 hover:underline">
-                                التفاصيل <ChevronRight className="w-3 h-3" />
-                            </Link>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <div className={`text-4xl font-bold tabular-nums ${
-                                advisorScore.health_score >= 70 ? 'text-success' :
-                                advisorScore.health_score >= 40 ? 'text-warning' : 'text-error'
-                            }`}>
-                                {advisorScore.health_score}
-                                <span className="text-sm font-normal text-muted">/100</span>
-                            </div>
-                            <div className="flex-1 space-y-1">
-                                {advisorScore.action_items.slice(0, 2).map((a, i) => (
-                                    <p key={i} className="text-xs text-muted truncate">• {a}</p>
-                                ))}
-                            </div>
-                        </div>
-                    </motion.div>
-                )}
+                        {unreadAlerts > 0 && (
+                            <motion.div variants={item} className="col-span-1 md:col-span-2 lg:col-span-4 rounded-xl px-5 py-3.5 border border-accent/10 bg-accent/[0.04] flex items-center justify-between">
+                                <p className="text-xs text-muted">
+                                    <span className="text-heading font-medium tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{unreadAlerts}</span>
+                                    {' '}تنبيه غير مقروء
+                                </p>
+                                <Link to="/alerts" className="text-xs text-accent hover:opacity-70 transition-opacity cursor-pointer">
+                                    عرض التنبيهات
+                                </Link>
+                            </motion.div>
+                        )}
 
+                        {advisorScore && (
+                            <motion.div variants={item} className="rounded-2xl p-5 border border-white/[0.06] bg-white/[0.02]">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-2 text-xs text-muted">
+                                        <Sparkles className="w-3.5 h-3.5 text-accent" />
+                                        الصحة المالية
+                                    </div>
+                                    <Link to="/advisor" className="text-xs text-accent flex items-center gap-0.5 hover:opacity-70 transition-opacity">
+                                        عرض <ChevronRight className="w-3 h-3" />
+                                    </Link>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <span className="text-4xl font-bold tabular-nums leading-none" style={{
+                                        fontFamily: "'JetBrains Mono', monospace",
+                                        color: advisorScore.health_score >= 70 ? '#22C55E' : advisorScore.health_score >= 40 ? '#F59E0B' : '#EF4444'
+                                    }}>
+                                        {advisorScore.health_score}
+                                        <span className="text-sm font-normal text-muted">/100</span>
+                                    </span>
+                                    <div className="flex-1 space-y-1.5">
+                                        {advisorScore.action_items.slice(0, 2).map((a, i) => (
+                                            <p key={i} className="text-xs text-muted truncate leading-relaxed">— {a}</p>
+                                        ))}
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </>
+                )}
             </motion.div>
         </div>
     )
