@@ -66,13 +66,6 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                 flex-col items-center py-6
                 bg-glass backdrop-blur-2xl border border-glass-border shadow-glass
             ">
-                {/* Logo */}
-                <div className="mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-purple-600 flex items-center justify-center shadow-glow">
-                        <span className="text-white font-bold text-lg">W</span>
-                    </div>
-                </div>
-
                 {/* Nav Items — scrollable */}
                 <nav className="flex-1 flex flex-col items-center gap-2 overflow-y-auto overflow-x-hidden w-full px-3 scrollbar-none">
                     {navItems.map((item) => (
@@ -155,11 +148,8 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                                 bg-bg-subtle backdrop-blur-2xl border-l border-glass-border shadow-glass
                             "
                         >
-                            {/* Logo + Theme */}
-                            <div className="flex items-center justify-between px-5 mb-6">
-                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent to-purple-600 flex items-center justify-center shadow-glow">
-                                    <span className="text-white font-bold text-xl">W</span>
-                                </div>
+                            {/* Theme toggle only in mobile header */}
+                            <div className="flex items-center justify-end px-5 mb-6">
                                 <button
                                     onClick={toggle}
                                     className="w-10 h-10 rounded-xl flex items-center justify-center text-muted hover:text-heading hover:bg-glass-hover transition-colors"
